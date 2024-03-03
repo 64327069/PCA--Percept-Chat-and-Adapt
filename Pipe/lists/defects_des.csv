@@ -1,0 +1,18 @@
+id,name
+0,"There are no defects in the pipes."
+1,"Impurities settle at the bottom of the pipeline, forming deposits that reduce the cross-sectional area of the pipe. Sediments include silt, broken masonry, consolidated cement mortar, etc."
+2,"The two nozzles of the same interface are laterally offset and not in the correct position of the pipe. The socket joints of the two pipes are deviated, and the adjacent pipes appear to be half-moon shaped."
+3,"The obstructions in the pipeline affecting flow include hard debris like stones, firewood, branches, abandoned tools, fragments of broken pipelines, etc. Obstacles are external objects entering the pipeline and occupy a certain space size."
+4,"Attachment on inner pipe wall. Water dirt adheres, forming deposit reducing pipe cross-section."
+5,"Tree roots grow into pipe, damaging structure and impacting flow capacity."
+6,"The external pressure of the pipe exceeds its own bearing capacity, causing the pipe to rupture. Its forms are longitudinal, circumferential and composite."
+7,"The shape of the pipe is changed due to the extrusion of the external force, and the original shape of the pipe is changed, only applicable to flexible pipes."
+8,"Objects penetrate pipe wall, enter pipe incl. rocks in backfill, structures passing through pipeline, other pipelines passing through. Invasion of foreign matter causes pipeline damage."
+9,"Floating objects on the water surface inside the pipe."
+10,"The inner wall of the pipeline is eroded and lost or peeled off, and there is a pockmarked surface or exposed steel bars. The inner wall of the pipeline is corroded by harmful substances or the inner wall of the pipeline is worn."
+11,"The branch pipe is directly connected laterally to the main pipe without passing through the manhole."
+12,"The temporary brick walls built during the closed water test of the pipeline were blocked, and the residues that were not removed or were not removed completely after the test."
+13,Water outside the pipe flows into the pipe or water inside the pipe leaks out of the pipe.
+14,"The subsidence of the interface position makes the slope of the pipeline change significantly, forming a depression."
+15,"The ends of the two pipes not joined or joint disengaged. Socket joints of two pipes not sufficiently advanced or joints disengaged due to settlement. Adjacent pipes appear as full moons."
+16,"Rubber rings, asphalt, cement, and similar interface materials enter the pipe."

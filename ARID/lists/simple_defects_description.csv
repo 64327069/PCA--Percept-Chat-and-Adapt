@@ -1,0 +1,18 @@
+id,name
+0,There are no defects in the pipes
+1,The pipe in the video has a deposition defect
+2,The pipe in the video has a faulty opening defect
+3,The pipe in the video has a obstacle defect
+4,The pipe in the video has a scaling defect
+5,The pipe in the video has a root defect
+6,The pipe in the video has a rupture  defect
+7,The pipe in the video has a deformation defect
+8,The pipe in the video has a foreign object penetration defect
+9,The pipe in the video has a scum defect
+10,The pipe in the video has a corrosion  defect
+11,The pipe in the video has a blind connection defect
+12,The pipe in the video has a residual wall defect
+13,The pipe in the video has a leakage defect
+14,The pipe in the video has a fluctuation defect
+15,The pipe in the video has a disjointed defect
+16,The pipe in the video has a interface material drop defect

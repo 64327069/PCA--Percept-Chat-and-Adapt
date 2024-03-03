@@ -1,0 +1,75 @@
+resume:
+pretrain:
+seed: 2022
+data:
+    dataset: ARID
+    modality: RGB
+    num_segments: 64
+    seg_length: 1
+    batch_size: 32
+    workers: 16
+    num_classes: 11
+    image_tmpl: '{:06d}.jpg'
+    train_list: "/data0/ARID/list_cvt/AID11_split2_train_wonew.txt" #
+    val_list: "/data0/ARID/list_cvt/AID11_split2_test_new.txt" #
+    test_list: "/data0/ARID/list_cvt/AID11_split2_test_new.txt" #
+    datapath: ""
+    label_list: 'lists/arid_labels_prompt.csv'  # 'lists/arid_labels_prompt.csv'  lists/arid_labels.csv
+    fg_label_list: '/data0/workplace/ActionCLIP-master/lists/arid_fine_caption.csv'
+    fine_grained_num: 64   #111111111111
+    index_bias: 1
+    input_size: 112
+    randaug:
+        N: 2 #2
+        M: 9  #9
+    random_shift: True
+
+
+model:
+    func: Fine-grained-CLIP # ActionCLIP(这边label需要是单纯一个词） CLIP（需要自己加 a video of ....,使用labels_prompt.csv)   ActionCLIP baseline 方法  TPT QLSF sf_sup Fine-grained-CLIP
+    temporal_type: normal # frozenCLIP  normal   使用frozenCLIP 的话  记得去model 514改frame 和CLIP32/16
+    adapter: False
+    is_text: False
+    CoOp: False
+    N_CTX: 8            #下面的4个，都是和CoOp相关的
+    CTX_INIT: "a video of a person doing"
+    CLASS_TOKEN_POSITION: end  # front middle end
+    Global_uniblock: False
+    post_pretrain: False   #111111111111
+    path: "/"
+    resume_path: ""
+    fine_grained_prompt: False   #111111111111
+    gpt_prompt: True   #111111111111
+    spatial_adapter: False  #111111111111
+network:
+    arch: R(2+1)D  #ViT-B/32 ViT-B/16 R(2+1)D
+    init: True
+    tsm: False
+    drop_out: 0.8
+    emb_dropout: 0.0 
+    type: clip_arid
+    sim_header: "meanP"  #Transf   meanP  LSTM Conv_1D Transf_cls joint
+    joint: False
+    describe:
+    fix_text: True
+    fix_visual: False
+solver:
+    type: cosine
+    epochs: 100
+    start_epoch: 0
+    epoch_offset: 0
+    optim: adamw
+    lr: 1.e-5
+    lr_warmup_step: 5
+    momentum: 0.9
+    weight_decay: 0.2
+    lr_decay_step: 15
+    lr_decay_factor: 0.1
+    clip_gradient: 20
+    loss_type: nll
+    evaluate: False
+    ratio: 1
+    f_ratio: 1
+logging:
+    print_freq: 10
+    eval_freq: 1

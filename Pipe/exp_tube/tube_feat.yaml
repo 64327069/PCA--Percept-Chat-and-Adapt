@@ -1,0 +1,62 @@
+pretrain: 
+resume: 
+seed: 1024
+data:
+    dataset: Tube
+    modality: RGB
+    num_segments: 8
+    seg_length: 1
+    split: 1
+    batch_size: 1
+    workers: 8
+    gpus: 8
+    num_classes: 17
+    image_tmpl: '{:05d}.jpg'
+    train_list: '/opt/data/private/Data/ECCV2022/train.txt' 
+    val_list: '/opt/data/private/workplace/pipe2/json_files/all_caption_1.json'
+    label_list: '/opt/data/private/workplace/pipe2/lists/defects_des.csv'
+    index_bias: 1
+    input_size: 224
+    randaug:
+        N: 0 #2
+        M: 0  #9
+network:
+    arch: 'ViT-B-16.pt'  #ViT-B/32 ViT-B/16  res query ViT-B-16.pt
+    init: True  
+    multi_mode: False
+    drop_out: 0.0 
+    emb_dropout: 0.0 
+    head_dropout: 0.2
+    type: clip
+    sim_header: "Transf"  #Transf   meanP   LSTM   Transf_cls Conv_1D
+    fix_text: True
+    fix_img: False
+    in_channels: 512
+    vision_patch_size: 16
+    vision_width: 768
+    vision_layers: 12
+    embed_dim: 512
+    if_softmax: False
+    fusion_type: 'hadama' #hadama matmul
+    describe:
+solver:
+    type: cosine
+    epochs: 70
+    start_epoch: 0
+    epoch_offset: 0
+    optim: adamw
+    lr: 1.e-5
+    head_lr: 1.e-3
+    lr_warmup_step: 5
+    momentum: 0.9
+    weight_decay: 0.2
+    lr_decay_step: 15
+    lr_decay_factor: 0.1
+    clip_gradient: 20
+    loss_type: nll
+    evaluate: False
+    ratio: 1
+    f_ratio: 10
+logging:
+    print_freq: 10
+    eval_freq: 1

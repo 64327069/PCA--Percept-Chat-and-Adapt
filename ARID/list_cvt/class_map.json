@@ -1,0 +1,13 @@
+{
+    "Drink": 0,
+    "Jump": 1,
+    "Pick": 2,
+    "Pour": 3,
+    "Push": 4,
+    "Run": 5,
+    "Sit": 6,
+    "Stand": 7,
+    "Turn": 8,
+    "Walk": 9,
+    "Wave": 10
+}

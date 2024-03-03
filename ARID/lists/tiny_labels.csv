@@ -1,0 +1,27 @@
+id,name
+0,a video of doing Closing
+1,a video of doing Entering
+2,a video of doing Exiting
+3,a video of doing Interacts
+4,a video of doing Loading
+5,a video of doing Misc
+6,a video of doing Opening
+7,a video of doing Pull
+8,a video of doing Push
+9,a video of doing Riding
+10,a video of doing Talking
+11,a video of doing Transport_HeavyCarry
+12,a video of doing activity_carrying
+13,a video of doing activity_gesturing
+14,a video of doing activity_running
+15,a video of doing activity_standing
+16,a video of doing activity_walking
+17,a video of doing specialized_miscellaneous
+18,a video of doing specialized_talking_phone
+19,a video of doing specialized_texting_phone
+20,a video of doing specialized_using_tool
+21,a video of doing vehicle_moving
+22,a video of doing vehicle_starting
+23,a video of doing vehicle_stopping
+24,a video of doing vehicle_turning_left
+25,a video of doing vehicle_turning_right
