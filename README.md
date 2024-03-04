@@ -1,4 +1,4 @@
-# ![image-20240303104110331](README.assets/image-20240303104110331.png)
+<img src="https://github.com/64327069/PCA--Percept-Chat-and-Adapt/blob/main/README.assets/image-20240303104110331.png">
 
 
 Boyu Chen, Siran Chen, Kunchang Li, Qinglin Xu, [Yu Qiao](https://scholar.google.com/citations?user=gFtI-8QAAAAJ&hl), [Yali Wang†](https://scholar.google.com/citations?user=hD948dkAAAAJ)
