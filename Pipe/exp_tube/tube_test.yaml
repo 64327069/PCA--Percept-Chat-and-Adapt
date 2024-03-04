@@ -13,7 +13,6 @@ data:
     num_classes: 17
     image_tmpl: '{:05d}.jpg'
     train_list: '/opt/data/private/Data/ECCV2022/train.txt' 
-    # val_list: '/opt/data/private/Data/ECCV2022/test.txt'
     val_list: '/opt/data/private/workplace/pipe2/json_files/all_caption_1.json'
     label_list: '/opt/data/private/workplace/pipe2/lists/defects_des.csv'
     index_bias: 1
