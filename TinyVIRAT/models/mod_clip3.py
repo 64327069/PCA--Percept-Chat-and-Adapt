@@ -10,7 +10,7 @@ from timm.models.registry import register_model
 from einops_exts import rearrange_many
 from einops import rearrange, repeat
 
-
+# cnn_clip with 
 class QuickGELU(nn.Module):
     def forward(self, x):
         return x * torch.sigmoid(1.702 * x)
@@ -94,12 +94,8 @@ class KnowledgeAdapterBlock(nn.Module):
 
         self.ln_1 = nn.LayerNorm(d_model)
         self.ln_2 = nn.LayerNorm(d_model)
-
         self.attn_mask = attn_mask
         self.cross_attn1 = PerceiverAttention(d_model)
-
-        
-        
 
     def attention(self, x):
         self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
@@ -174,10 +170,7 @@ class ResidualAttentionBlock(nn.Module):
         self.cross_attn = PerceiverAttention(d_model)
         self.cross_attn_text = PerceiverAttention(d_model)
         self.text_block = TextAdapterBlock(d_model,n_head)
-        
-        
-        
-        
+
     def attention(self, x):
         self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
         return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
@@ -214,12 +207,10 @@ class ResidualAttentionBlock(nn.Module):
             H = W = int(L ** 0.5)
             # 196, 64, 768 -> 8, 768, 8, 14, 14
             tmp_x = tmp_x.view(H, W, N, T, C).permute(2, 4, 3, 0, 1).contiguous()
-            
             tmp_x = tmp_x + self.drop_path(self.lmhra1(tmp_x))
             # 8, 768, 8, 14, 14 -> 196, 64, 768
             tmp_x = tmp_x.view(N, C, T, L).permute(3, 0, 2, 1).contiguous().view(L, NT, C)
             x = torch.cat([x[:1, :, :], tmp_x], dim=0)
-            
             x = x + self.drop_path(self.attention(self.ln_1(x)))
             
             tmp_x = x[1:, :, :]
@@ -249,7 +240,6 @@ class ResidualAttentionBlock(nn.Module):
             # 8, 768, 8, 14, 14 -> 196, 64, 768
             tmp_x = tmp_x.view(N, C, T, L).permute(3, 0, 2, 1).contiguous().view(L, NT, C)
             x = torch.cat([x[:1, :, :], tmp_x], dim=0)
-            
             x = x + self.drop_path(self.attention(self.ln_1(x)))
             
             tmp_x = x[1:, :, :]
