@@ -48,17 +48,16 @@ def set_seed_logger(seed):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
-    torch.manual_seed(seed)  # 在神经网络中，参数默认是进行随机初始化的。如果不设置的话每次训练时的初始化都是随机的，导致结果不确定。如果设置初始化，则每次初始化都是固定的。
+    torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)  # if you are using multi-GPU.
-    torch.backends.cudnn.benchmark = False  # True 的话，将会让程序在开始时花费一点额外时间，为整个网络的每个卷积层搜索最适合它的卷积实现算法，进而实现网络的加速
-    torch.backends.cudnn.deterministic = True  # 确保训练初始值固定
+    torch.backends.cudnn.benchmark = False 
+    torch.backends.cudnn.deterministic = True  # 
 
     return args
 
 # get the model, need to be modified into the config
 def get_feat(config):
-    # for split i 
     from models.dark_light_feat import dark_light_feat
     model_path = config.pretrain
     model = dark_light_feat(num_classes=11)
@@ -67,10 +66,7 @@ def get_feat(config):
     print("load model success {}".format(model_path))
     
     return model
-    
 
-
-# 进入,一定不要出现两个Datapararallel
 def train_epoch(train_loader, model, criterion, optimizer, epoch, config):
     batch_time = AverageMeter()
     lossesClassification = AverageMeter()
@@ -138,7 +134,6 @@ def validate_epoch(val_loader, model, criterion, config):
     lossesClassification = AverageMeter()
     top1 = AverageMeter()
     top5 = AverageMeter()
-    # switch to evaluate mode
     model, lmodel = model
     model.eval()
     lmodel.eval()
@@ -148,7 +143,6 @@ def validate_epoch(val_loader, model, criterion, config):
     with torch.no_grad():
         for i, (inputs, inputs_light, targets, text_feat) in tqdm(enumerate(val_loader)):
             # break
-            
             inputs = inputs.view(-1, length, 3, input_size, input_size).transpose(1, 2)
             inputs_light = inputs_light.view(-1, length, 3, input_size, input_size).transpose(1, 2)
             text_feat = text_feat.cuda()
@@ -159,12 +153,9 @@ def validate_epoch(val_loader, model, criterion, config):
             _, light_output = lmodel(inputs_light)
             output = model(inputs, light_output, text_feat)
             lossClassification = criterion(output, targets)
-
             # measure accuracy and record loss
             prec1, prec5 = accuracy(output.data, targets, topk=(1, 5))
-
             lossesClassification.update(lossClassification.data.item(), output.size(0))
-
             top1.update(prec1.item(), output.size(0))
             top5.update(prec5.item(), output.size(0))
 
@@ -362,10 +353,6 @@ def main():
     criterion = nn.CrossEntropyLoss().cuda()
     scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5, verbose=True)
     best_prec1 = 0.0
-    # for k, v in model.named_parameters():
-    #     print('{}: {}'.format(k, v.requires_grad))
-    # for k, v in model.named_parameters():
-    #     print('{}: {}'.format(k, v.requires_grad))
     for epoch in range(start_epoch, args.epochs):
         train_epoch(train_loader, (model, light_model), criterion, optimizer, epoch, config)
         prec1, prec5, lossClassification = validate_epoch(val_loader, (model, light_model), criterion, config)

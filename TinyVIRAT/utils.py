@@ -83,8 +83,6 @@ def dis_output(output, targets):
         if output[i].max() < 0.5: 
             output[i][output[i].argmax()] = 0.6
             continue
-        # if output[i][16] > 0.5:
-        #     output[i][8] = 0.
         # if talking phone, not texting phone
         if output[i][24] > 0.5 and output[i][23] > output[i][24]: 
             output[i][24] = 0.
@@ -100,9 +98,6 @@ def dis_output(output, targets):
             output[i][8] = 0
         if output[i][10] < output[i][22] and output[i][10] > 0.5:
             output[i][10] = 0.
-
-        # if not output, return the max score class
-        
     return output
         
         

@@ -67,16 +67,13 @@ class PerceiverAttention(nn.Module):
         # subtract the maximum similarity value across the key sequence to prevent 
         # numerical instability and apply softmax to obtain attention weights
         sim = sim - sim.amax(dim = -1, keepdim = True).detach()
-        # 注意这个attention的softmax，这就是导致没法收敛的原因
         attn = sim.softmax(dim = -1)
-
         out = einsum('... i j, ... j d -> ... i d', attn, v)
         # 聚合multi head
         out = rearrange(out, 'b h n d -> b n (h d)', h = h)
         return self.to_out(out)
         
         
-# learnable query 从外面输进去
 class KnowledgeAdapterBlock(nn.Module):
     def __init__(self, d_model, n_head, drop_path=0., attn_mask=None, num_latents = 32, 
                  num_media_embeds = 4):
@@ -143,16 +140,11 @@ class TextAdapterBlock(nn.Module):
         self.attn_mask = self.attn_mask.to(dtype=x.dtype, device=x.device) if self.attn_mask is not None else None
         return self.attn(x, x, x, need_weights=False, attn_mask=self.attn_mask)[0]
     
-    # TODO: if frames is not 8, please change here
     def forward(self, text_feat):
-               
         latents = repeat(self.latents, 'n d -> b n d', b = text_feat.shape[0])
         latents = self.norm_latents(latents)
-        
         text_feat = self.linear(text_feat)
         latents = self.cross_attn1(text_feat, latents)
-        # latents = latents.squeeze(1)
-        
         latents = latents + self.drop_path(self.attention(self.ln_1(latents)))
         latents = latents + self.drop_path(self.mlp(self.ln_2(latents)))        
         return latents
@@ -186,17 +178,12 @@ class DropPath(nn.Module):
     def forward(self, x):
         return drop_path(x, self.drop_prob, self.training)
 
-
-
-
-
 class dark_light(nn.Module):
     def __init__(self, num_classes):
         super(dark_light, self).__init__()
         self.hidden_size = 512
         self.length = 64
         self.avgpool = nn.AvgPool3d((1, 7, 7), stride=1)
-        # 预训练
         self.features = nn.Sequential(*list(
             r2plus1d_34_32_ig65m(359, pretrained=True, progress=True).children())[:-2])
 
@@ -215,11 +202,9 @@ class dark_light(nn.Module):
     def forward(self, x, visual_feat = None, text_feat = None):
 
         x = self.features(x)  # x(b,512,8,7,7)
-        # use cross attention here
         if visual_feat is not None and text_feat is None:
             B, C, T, H, W = x.shape
             x, visual_feat = rearrange_many((x, visual_feat), 'b c t h w -> b (t h w) c')
-            # 32 196 512
             visual_feat = self.addition_block(visual_feat)
             x =  x + 0.1 * self.cross_attn(visual_feat, x)
             x = rearrange(x, 'b (t h w) c -> b c t h w', t = T, h  = H, w = W)
@@ -228,7 +213,6 @@ class dark_light(nn.Module):
             B, C, T, H, W = x.shape
             text_feat = self.text_block(text_feat)
             x, visual_feat = rearrange_many((x, visual_feat), 'b c t h w -> b (t h w) c')
-            # 32 196 512
             visual_feat = self.addition_block(visual_feat)
             x =  x + 0.2 * self.cross_attn(visual_feat, x) + 0.2 * self.cross_attn_text(text_feat, x)
             x = rearrange(x, 'b (t h w) c -> b c t h w', t = T, h  = H, w = W)
@@ -237,7 +221,6 @@ class dark_light(nn.Module):
             B, C, T, H, W = x.shape
             text_feat = self.text_block(text_feat)
             x = rearrange(x, 'b c t h w -> b (t h w) c')
-            # 32 196 512
             x =  x +  0.1 * self.cross_attn_text(text_feat, x)
             x = rearrange(x, 'b (t h w) c -> b c t h w', t = T, h  = H, w = W)
         

@@ -33,8 +33,7 @@ def make_dataset_val(root, source):
     
 
 def make_dataset(root, source):
-    # root:'./datasets/hmdb51_frames'
-    # source:'./datasets/settings/hmdb51/train_rgb_split1.txt'
+
     if not os.path.exists(source):
         print("Setting file %s for hmdb51 dataset doesn't exist." % (source))
         sys.exit()
@@ -44,12 +43,12 @@ def make_dataset(root, source):
             data = split_f.readlines()
             for line in data:
                 line_info = line.split()
-                clip_path = os.path.join(root, line_info[0])  # 视频名称
-                duration = int(line_info[1])  # 视频帧长
-                target = int(line_info[2])  # 视频类别
+                clip_path = os.path.join(root, line_info[0])  
+                duration = int(line_info[1])  
+                target = int(line_info[2])  
                 item = (clip_path, duration, target, target)
                 clips.append(item)
-    return clips  # (视频名称,帧长,标签)
+    return clips  
 
 
 def ReadSegmentRGB(path, offsets, new_height, new_width, new_length, is_color, name_pattern, duration):
@@ -69,15 +68,13 @@ def ReadSegmentRGB(path, offsets, new_height, new_width, new_length, is_color, n
                 moded_loaded_frame_index = (duration + 1)
             frame_name = name_pattern % (moded_loaded_frame_index)
 
-            frame_path = path + "/" + '0' + frame_name[4:]  ####### 针对我的
+            frame_path = path + "/" + '0' + frame_name[4:]  
 
             cv_img_origin = cv2.imread(frame_path, cv_read_flag)
             if cv_img_origin is None:
                 print("Could not load file %s" % (frame_path))
                 sys.exit()
-                # TODO: error handling here
             if new_width > 0 and new_height > 0:
-                # use OpenCV3, use OpenCV2.4.13 may have error
                 cv_img = cv2.resize(cv_img_origin, (new_width, new_height), interpolation)
             else:
                 cv_img = cv_img_origin
@@ -103,18 +100,13 @@ def ReadSegmentRGB_light(path, offsets, new_height, new_width, new_length, is_co
             if moded_loaded_frame_index == 0:
                 moded_loaded_frame_index = (duration + 1)
             frame_name = name_pattern % (moded_loaded_frame_index)
-            # frame_path = path + "/" + frame_name
-            frame_path = path + "/" + '0' + frame_name[4:] ###### 针对我的
+            frame_path = path + "/" + '0' + frame_name[4:] 
             cv_img_origin = cv2.imread(frame_path, cv_read_flag)
-            #####
             cv_img_origin = img_to_gamma.gamma_intensity_correction(cv_img_origin, gamma)
-            #####
             if cv_img_origin is None:
                 print("Could not load file %s" % (frame_path))
                 sys.exit()
-                # TODO: error handling here
             if new_width > 0 and new_height > 0:
-                # use OpenCV3, use OpenCV2.4.13 may have error
                 cv_img = cv2.resize(cv_img_origin, (new_width, new_height), interpolation)
             else:
                 cv_img = cv_img_origin
@@ -148,7 +140,6 @@ def ReadSegmentFlow(path, offsets, new_height, new_width, new_length, is_color, 
             if cv_img_origin_x is None or cv_img_origin_y is None:
                 print("Could not load file %s or %s" % (frame_path_x, frame_path_y))
                 sys.exit()
-                # TODO: error handling here
             if new_width > 0 and new_height > 0:
                 cv_img_x = cv2.resize(cv_img_origin_x, (new_width, new_height), interpolation)
                 cv_img_y = cv2.resize(cv_img_origin_y, (new_width, new_height), interpolation)
@@ -162,7 +153,7 @@ def ReadSegmentFlow(path, offsets, new_height, new_width, new_length, is_color, 
     return clip_input
 
 def get_all_text_feat():
-    text_path = '/data0/workplace/ActionCLIP-master/bert_feat'
+    text_path = './bert_feat'
     all_text_feat = []
     for i in range(11):
         path = os.path.join(text_path, str(i)+'.npy')
@@ -188,7 +179,7 @@ class ARID_MOD(data.Dataset):
                  video_transform=None,
                  ensemble_training=False,
                  gamma=None):
-        root = "/data0/ARID/light_frames"
+        root = "./light_frames"
         classes, class_to_idx = find_classes(root)
         if phase == "train":
             clips = make_dataset(root, source)
@@ -235,16 +226,12 @@ class ARID_MOD(data.Dataset):
         path, duration, target, text_label = self.clips[index]
         duration = duration - 1
         average_duration = int(duration / self.num_segments)
-        # 帧长/分块数
         average_part_length = int(np.floor((duration - self.new_length) / self.num_segments))
-        # 取64帧后剩下几帧
         offsets = []
         for seg_id in range(self.num_segments):
             if self.phase == "train":
                 if average_duration >= self.new_length:
                     offset = random.randint(0, average_duration - self.new_length)
-                    # offset=2,
-                    # No +1 because randint(a,b) return a random integer N such that a <= N <= b.
                     offsets.append(offset + seg_id * average_duration)
                 elif duration >= self.new_length:
                     offset = random.randint(0, average_part_length)
@@ -293,10 +280,8 @@ class ARID_MOD(data.Dataset):
             target = self.target_transform(target)
         if self.video_transform is not None:
             clip_input, clip_input_light = self.video_transform(clip_input, clip_input_light)
-        # change here for LLM 
         if text_label != '':
             text_feat = self.all_text_feat[int(text_label)]
-        
         else:
             text_feat = np.zeros((20, 768), dtype = np.float32)
         return clip_input, clip_input_light, target, text_feat

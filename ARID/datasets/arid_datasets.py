@@ -164,7 +164,6 @@ class Action_DATASETS(data.Dataset):
     def __call__(self, img_group):
         return [self.worker(img) for img in img_group]
 
-
     def get(self, record, indices):
         images = list()
         for i, seg_ind in enumerate(indices):
@@ -176,9 +175,7 @@ class Action_DATASETS(data.Dataset):
                 print('invalid indices: {}'.format(indices))
                 raise
             images.extend(seg_imgs)
-
         process_data = self.transform(images)
-
         return process_data, record.label
 
     def __len__(self):

@@ -19,7 +19,6 @@ class dark_light_feat(nn.Module):
         self.hidden_size = 512
 
         self.avgpool = nn.AvgPool3d((1, 7, 7), stride=1)
-        # 预训练
         self.features = nn.Sequential(*list(
             r2plus1d_34_32_ig65m(359, pretrained=True, progress=True).children())[:-2])
 

@@ -248,7 +248,7 @@ def get_opt():
     return opt
 
 def generate_model_sr():
-    path = '/data0/workplace/tiny_virat/results/cnn_clip_5281SR/new_sr.pth'
+    path = './cnn_clip_5281SR/new_sr.pth'
     model = cnn_clip_feat_b16(input_resolution = 224 ,pretrained_path = None, num_classes = 400) 
     model.proj = nn.Sequential(
     nn.LayerNorm(model.proj[2].in_features),

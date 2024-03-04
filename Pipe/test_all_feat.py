@@ -50,9 +50,8 @@ def get_feat(config):
     
     model, clip_state_dict = load_extract(config.network.arch,device='cuda',jit=False, tsm=config.network.tsm, T=config.data.num_segments,dropout=config.network.drop_out, emb_dropout=config.network.emb_dropout,pretrain=config.network.init, joint = config.network.joint) 
     
-    model_path = '/opt/data/private/workplace/pipe2/exp/clip/ViT-B-16.pt/Tube/20230805_005734/model_best.pt'
+    model_path = './63.4SR/model_best.pt'
     pretrain = torch.load(model_path)
-    # model = 
     model.load_state_dict(pretrain['model_state_dict'], strict = False)
     model = torch.nn.DataParallel(model.visual).cuda()
     return model
@@ -67,7 +66,6 @@ def main():
     with open(args.config, 'r') as f:
         config = yaml.full_load(f)
     working_dir = os.path.join('./exp', config['network']['type'], config['network']['arch'], config['data']['dataset'], args.log_time)
-    # wandb.init(project=config['network']['type'],name='{}_{}_{}_{}'.format(args.log_time,config['network']['type'], config['network']['arch'], config['data']['dataset']))
     print('-' * 80)
     print(' ' * 20, "working dir: {}".format(working_dir))
     print('-' * 80)
@@ -85,15 +83,12 @@ def main():
     Parents,是否创建父目录,True等同于mkdir-p:False时,父目录不存在,则抛出fileNotfounderror。
     exist_ok参数,在3.5版本加入,flase时路径存在,抛出异常,True时候异常被忽略。
     '''
-    shutil.copy(args.config, working_dir)
-    shutil.copy('train_adaka_all_feat.py', working_dir)
-    shutil.copy('./clip/model_mod.py', working_dir)
     np.random.seed(config.seed)
     torch.manual_seed(config.seed)  # 固定随机种子（CPU）
     if torch.cuda.is_available():  # 固定随机种子（GPU)
         torch.cuda.manual_seed_all(config.seed)
 
-    device = "cuda" if torch.cuda.is_available() else "cpu" # If using GPU then use mixed precision training.
+    device = "cuda" if torch.cuda.is_available() else "cpu" 
     
     from clip.clip_mod import load_mod
     model, clip_state_dict = load_mod(config.network.arch,device=device,jit=False, tsm=config.network.tsm, T=config.data.num_segments,dropout=config.network.drop_out, emb_dropout=config.network.emb_dropout,pretrain=config.network.init, joint = config.network.joint) 
@@ -150,16 +145,9 @@ def main():
     fg_model = Single_Mode_Head(config.network.in_channels,config.data.num_classes,dropout_ratio=config.network.head_dropout)
     fg_model = fg_model.cuda()
     optimizer = _optimizer(config, model_image, fusion_model,fg_model)
-    lr_scheduler = _lr_scheduler(config, optimizer)
     
     mAP = validate_multicls_all_feat(0, val_loader, classes, device, model_image,fusion_model,fg_model, sam_model, config)
     print('######map {} ######'.format(mAP))
-
-
-    
-
-        
-
 
 if __name__ == '__main__':
     main()

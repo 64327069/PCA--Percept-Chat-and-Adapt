@@ -6,12 +6,7 @@ import torch.nn as nn
 
 from collections import OrderedDict
 
-
 import torch.hub
-
-
-
-
 
 class Conv2Plus1D(nn.Sequential):
 
@@ -176,10 +171,7 @@ class VideoResNet(nn.Module):
         x_feat = x.unsqueeze(0)
         for blk in self.layer4:
             x =blk(x)
-            x_feat = torch.cat((x_feat, x.unsqueeze(0)), dim=0)
-
-        
-
+            x_feat = torch.cat((x_feat, x.unsqueeze(0)), dim=0)     
         return x, x_feat
 
     def _make_layer(self, block, conv_builder, planes, blocks, stride=1):
@@ -227,62 +219,41 @@ def r2plus1d_34_32_ig65m(num_classes, pretrained=False, progress=False):
                        pretrained=pretrained, progress=progress)
 
 def r2plus1d_34(num_classes, pretrained=False, progress=False, arch=None):
-    #构造r2plus1d模型
     model = VideoResNet(block=BasicBlock,
                         conv_makers=[Conv2Plus1D] * 4,
                         layers=[3, 4, 6, 3],
                         stem=R2Plus1dStem)
 
     model.fc = nn.Linear(model.fc.in_features, out_features=num_classes)
-
     model.layer2[0].conv2[0] = Conv2Plus1D(128, 128, 288)
     model.layer3[0].conv2[0] = Conv2Plus1D(256, 256, 576)
     model.layer4[0].conv2[0] = Conv2Plus1D(512, 512, 1152)
-
-    # We need exact Caffe2 momentum for BatchNorm scaling
     for m in model.modules():
         if isinstance(m, nn.BatchNorm3d):
             m.eps = 1e-3
             m.momentum = 0.9
-
     if pretrained:
-
         model_urls="https://github.com/moabitcoin/ig65m-pytorch/releases/download/v1.0.0/r2plus1d_34_clip32_ig65m_from_scratch-449a7af9.pth"
-
         state_dict = torch.hub.load_state_dict_from_url(model_urls,
                                                         progress=progress)
-
         model.load_state_dict(state_dict)
-
     return model
-
-
-
-
-
 
 class dark_light_feat(nn.Module):
     def __init__(self, num_classes):
         super(dark_light_feat, self).__init__()
         self.hidden_size = 512
-
         self.avgpool = nn.AvgPool3d((1, 7, 7), stride=1)
-        # 预训练
         self.features = r2plus1d_34_32_ig65m(359, pretrained=True, progress=True)
-
         self.fc_action = nn.Linear(self.hidden_size, num_classes)
-
         for param in self.features.parameters():
             param.requires_grad = True
-
         torch.nn.init.xavier_uniform_(self.fc_action.weight)
         self.fc_action.bias.data.zero_()
         self.nobertpool = nn.AdaptiveAvgPool3d(1)
         
     def forward(self, x):
-        # print(x.shape) #4, 3, 8, 112, 112
         x, x_feat = self.features(x)  # x(b,512,8,7,7)
-        # use cross attention here
         x = self.avgpool(x)  # b,512,8,1,1
         x = x.view(x.size(0), self.hidden_size, 8)  # x(b,512,8)
         x = x.transpose(1, 2)  # x(b,8,512)      

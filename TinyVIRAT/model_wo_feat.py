@@ -48,8 +48,6 @@ def generate_model(opt):
         'resnet', 'resnet2p1d', 'preresnet', 'wideresnet', 'resnext', 'densenet', 'i3d', 'video_swin','resnet2p1d101','uniformer', 'ircsn152','ipcsn152', 'clip', 'cnn_clip', 'dcnn_clip', 'timesformer'
     ]
     
-    
-    
     if opt.model == 'clip':
         if not opt.sub_path or opt.resume_path :
             model = clip_mean_b16(pretrained_path = None, num_classes = opt.n_classes)

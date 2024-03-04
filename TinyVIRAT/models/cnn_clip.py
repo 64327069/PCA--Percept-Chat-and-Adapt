@@ -33,7 +33,6 @@ class Local_MHRA(nn.Module):
             nn.Conv3d(re_d_model, re_d_model, kernel_size=(pos_kernel_size, 1, 1), stride=(1, 1, 1), padding=(padding, 0, 0), groups=re_d_model),
             nn.Conv3d(re_d_model, d_model, kernel_size=1, stride=1, padding=0),
         )
-
         # init zero
         nn.init.constant_(self.pos_embed[3].weight, 0)
         nn.init.constant_(self.pos_embed[3].bias, 0)
@@ -156,23 +155,15 @@ class VisionTransformer(nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)  # shape = [*, width, grid, grid]
-
         B, C, T, H, W = x.shape
         x = x.permute(0, 2, 3, 4, 1).reshape(B * T, H * W, C)
-        
         x = torch.cat([self.class_embedding.to(x.dtype) + torch.zeros(x.shape[0], 1, x.shape[-1], dtype=x.dtype, device=x.device), x], dim=1)  # shape = [*, grid ** 2 + 1, width]
         x = x + self.positional_embedding.to(x.dtype)
-
         x = self.ln_pre(x)
-
         x = x.permute(1, 0, 2)  #BND -> NBD
         x = self.transformer(x)
-
-
         x = x[0].view(B, T, -1).mean(1)
-        
         x = self.proj(x)
-
         return x
 
 

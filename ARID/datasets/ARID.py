@@ -16,8 +16,6 @@ def find_classes(dir):
 
 
 def make_dataset(root, source):
-    # root:'./datasets/hmdb51_frames'
-    # source:'./datasets/settings/hmdb51/train_rgb_split1.txt'
     if not os.path.exists(source):
         print("Setting file %s for hmdb51 dataset doesn't exist." % (source))
         sys.exit()
@@ -27,12 +25,12 @@ def make_dataset(root, source):
             data = split_f.readlines()
             for line in data:
                 line_info = line.split()
-                clip_path = os.path.join(root, line_info[0])  # 视频名称
-                duration = int(line_info[1])  # 视频帧长
-                target = int(line_info[2])  # 视频类别
+                clip_path = os.path.join(root, line_info[0])  
+                duration = int(line_info[1]) 
+                target = int(line_info[2]) 
                 item = (clip_path, duration, target)
                 clips.append(item)
-    return clips  # (视频名称,帧长,标签)
+    return clips 
 
 
 def ReadSegmentRGB(path, offsets, new_height, new_width, new_length, is_color, name_pattern, duration):
@@ -52,8 +50,7 @@ def ReadSegmentRGB(path, offsets, new_height, new_width, new_length, is_color, n
                 moded_loaded_frame_index = (duration + 1)
             frame_name = name_pattern % (moded_loaded_frame_index)
 
-            frame_path = path + "/" + '0' + frame_name[4:]  ####### 针对我的
-
+            frame_path = path + "/" + '0' + frame_name[4:]
             cv_img_origin = cv2.imread(frame_path, cv_read_flag)
             if cv_img_origin is None:
                 print("Could not load file %s" % (frame_path))
@@ -167,12 +164,9 @@ class ARID(data.Dataset):
         classes, class_to_idx = find_classes(root)
         clips = make_dataset(root, source)
         self.gamma = gamma
-        # clips:(视频名称, 帧长, 标签)
-
         if len(clips) == 0:
             raise (RuntimeError("Found 0 video clips in subfolders of: " + root + "\n"
                                                                                   "Check your data directory."))
-
         self.root = root
         self.source = source
         self.phase = phase
@@ -205,16 +199,12 @@ class ARID(data.Dataset):
         path, duration, target = self.clips[index]
         duration = duration - 1
         average_duration = int(duration / self.num_segments)
-        # 帧长/分块数
         average_part_length = int(np.floor((duration - self.new_length) / self.num_segments))
-        # 取64帧后剩下几帧
         offsets = []
         for seg_id in range(self.num_segments):
             if self.phase == "train":
                 if average_duration >= self.new_length:
                     offset = random.randint(0, average_duration - self.new_length)
-                    # offset=2,
-                    # No +1 because randint(a,b) return a random integer N such that a <= N <= b.
                     offsets.append(offset + seg_id * average_duration)
                 elif duration >= self.new_length:
                     offset = random.randint(0, average_part_length)
@@ -255,7 +245,6 @@ class ARID(data.Dataset):
                                                     )
         else:
             print("No such modality %s" % (self.modality))
-
         if self.transform is not None:
             clip_input = self.transform(clip_input)
             clip_input_light = self.transform(clip_input_light)
@@ -263,7 +252,6 @@ class ARID(data.Dataset):
             target = self.target_transform(target)
         if self.video_transform is not None:
             clip_input, clip_input_light = self.video_transform(clip_input, clip_input_light)
-        # change here 
         return clip_input, clip_input_light, target
 
     def __len__(self):
